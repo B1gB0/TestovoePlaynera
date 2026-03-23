@@ -16,7 +16,6 @@ namespace Project.Scripts.Game.Gameplay
     {
         [SerializeField] private UIGameplayRootBinder _sceneUIRootPrefab;
         [SerializeField] private Character _girl;
-        [SerializeField] private FaceZone _faceZone;
         [SerializeField] private ViewFactory _viewFactory;
 
         private PlayerHand _hand;
@@ -56,7 +55,12 @@ namespace Project.Scripts.Game.Gameplay
             GameplayView gameplayView = await _viewFactory.CreateGameplayView();
             
             _hand = await _viewFactory.CreatePlayerHand();
-            _hand.Construct(_uiRoot.Canvas, _uiScene.DefaultPosition, _uiScene.WaitPosition, _faceZone);
+            _hand.Construct(
+                _uiRoot.Canvas,
+                _uiScene.DefaultPosition,
+                _uiScene.WaitPosition,
+                gameplayView.FaceZone,
+                _uiScene.AdditionalMakeupPosition);
             
             gameplayView.InitMakeupItems(_hand, _girl);
 

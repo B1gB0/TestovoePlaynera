@@ -12,6 +12,7 @@ namespace Project.Scripts.Game.Gameplay.Root.View
         
         [field: SerializeField] public Transform DefaultPosition { get; private set; }
         [field: SerializeField] public Transform WaitPosition { get; private set; }
+        [field: SerializeField] public Transform AdditionalMakeupPosition { get; private set; }
         [field: SerializeField] public GameplayElements UIScene { get; private set; }
         
         public void GetUIStateMachine(UIStateMachine uiStateMachine)

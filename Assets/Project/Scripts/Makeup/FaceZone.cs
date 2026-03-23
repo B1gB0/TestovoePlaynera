@@ -1,15 +1,25 @@
 ﻿using UnityEngine;
 
-namespace Project.Scripts.Makeup
+public class FaceZone : MonoBehaviour
 {
-    public class FaceZone : MonoBehaviour
-    {
-        [SerializeField] private Collider2D _zoneCollider;
+    private RectTransform _rectTransform;
+    private Canvas _canvas;
 
-        public bool IsPointerOverZone(Vector2 screenPos)
-        {
-            Vector2 worldPoint = Camera.main.ScreenToWorldPoint(screenPos);
-            return _zoneCollider.OverlapPoint(worldPoint);
-        }
+    private void Start()
+    {
+        _rectTransform = GetComponent<RectTransform>();
+        _canvas = GetComponentInParent<Canvas>();
+        
+        if (_canvas == null)
+            Debug.LogError("FaceZone must be inside a Canvas!");
+    }
+
+    public bool IsPointerOverZone(Vector2 screenPos)
+    {
+        if (_rectTransform == null) return false;
+        return RectTransformUtility.RectangleContainsScreenPoint(
+            _rectTransform,
+            screenPos,
+            _canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : _canvas.worldCamera);
     }
 }

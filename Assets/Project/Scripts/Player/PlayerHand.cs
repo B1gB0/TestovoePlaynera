@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using Project.Scripts.Makeup;
 using TMPro;
 using UnityEngine;
@@ -14,38 +14,41 @@ namespace Project.Scripts.Player
         [SerializeField] private Image _makeupIcon;
         [SerializeField] private TMP_Text _text;
         [SerializeField] private List<Sprite> _makeupSprites;
-        
         [SerializeField] private RectTransform _handRect;
         [SerializeField] private Animator _handAnimator;
-        [SerializeField] private float _moveSpeed = 800f; // скорость перемещения (пикселей/сек)
+        [SerializeField] private float _moveSpeed = 800f;
 
         private FaceZone _faceZone;
         private Canvas _canvas;
-        private Vector2 _defaultAnchoredPos;   // исходная позиция руки
-        private Vector2 _waitAnchoredPos;      // позиция ожидания (у груди)
+        
+        private Vector2 _defaultAnchoredPos;
+        private Vector2 _waitAnchoredPos;
+        private Vector2 _additionalMakeupItemPosition;
 
         private bool _canDrag;
         private bool _isApplying;
+        
         private MakeupItem _currentItem;
+        private RectTransform _currentRectTransformItem;
+
         private Vector2 _dragOffset;
-        private Coroutine _moveCoroutine;
 
         public bool IsBusy { get; private set; }
 
-        public void Construct(Canvas canvas, Transform defaultPosition, Transform waitPosition, FaceZone faceZone)
+        public void Construct(
+            Canvas canvas,
+            Transform defaultPosition,
+            Transform waitPosition,
+            FaceZone faceZone,
+            Transform makeupItemPosition)
         {
             _canvas = canvas;
             _faceZone = faceZone;
             RectTransform parent = _handRect.parent as RectTransform;
 
-            // Преобразуем мировые позиции в anchoredPosition внутри Canvas
             _defaultAnchoredPos = WorldToAnchored(defaultPosition.position);
             _waitAnchoredPos = WorldToAnchored(waitPosition.position);
-        }
-
-        private void Update()
-        {
-            Debug.Log(_canDrag);
+            _additionalMakeupItemPosition = WorldToAnchored(makeupItemPosition.position);
         }
 
         private Vector2 WorldToAnchored(Vector3 worldPos)
@@ -78,11 +81,11 @@ namespace Project.Scripts.Player
             if (!_canDrag || _isApplying) return;
             if (_faceZone.IsPointerOverZone(eventData.position))
             {
-                StartCoroutine(ApplyMakeup());
+                ApplyMakeupAsync().Forget();
             }
         }
 
-        public void StartTakingItem(MakeupItem item)
+        public async UniTask StartTakingItem(MakeupItem item)
         {
             if (IsBusy) return;
 
@@ -90,20 +93,33 @@ namespace Project.Scripts.Player
             IsBusy = true;
             _canDrag = false;
 
-            // Получаем позицию предмета на Canvas (предполагается, что предмет — UI с RectTransform)
-            RectTransform itemRect = item.GetComponent<RectTransform>();
-            if (itemRect == null)
+            _currentRectTransformItem = item.GetComponent<RectTransform>();
+            if (_currentRectTransformItem == null)
             {
                 Debug.LogError("MakeupItem must have RectTransform to move hand to it!");
                 return;
             }
 
-            // Конвертируем позицию предмета в anchoredPosition относительно родителя руки
-            Vector2 targetPos = WorldToAnchored(itemRect.position);
-            _moveCoroutine = StartCoroutine(MoveTo(targetPos, OnReachedItem));
+            Vector2 targetPos = WorldToAnchored(_currentRectTransformItem.position);
+
+            if (_currentItem.Type == MakeupItemType.Cream || _currentItem.Type == MakeupItemType.Lipstick)
+            {
+                await MoveToAsync(targetPos);
+                SetMakeupItem();
+                await MoveToAsync(_waitAnchoredPos);
+            }
+            else if(_currentItem.Type != MakeupItemType.Loofah)
+            {
+                await MoveToAsync(_additionalMakeupItemPosition);
+                SetMakeupItem();
+                await MoveToAsync(targetPos);
+                await MoveToAsync(_waitAnchoredPos);
+            }
+            
+            _canDrag = true;
         }
 
-        private IEnumerator MoveTo(Vector2 targetPos, Action onComplete)
+        private async UniTask MoveToAsync(Vector2 targetPos)
         {
             Vector2 startPos = _handRect.anchoredPosition;
             float distance = Vector2.Distance(startPos, targetPos);
@@ -115,77 +131,65 @@ namespace Project.Scripts.Player
                 elapsed += Time.deltaTime;
                 float t = elapsed / duration;
                 _handRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, t);
-                yield return null;
+                await UniTask.Yield();
             }
             _handRect.anchoredPosition = targetPos;
-            onComplete?.Invoke();
         }
 
-        private void OnReachedItem()
-        {
-            // Предмет скрывается
-            //_currentItem.OnTaken(); 
-            
-            _currentItem.gameObject.SetActive(false);
-            _makeupIcon.gameObject.SetActive(true);
-            if (_currentItem.Type == MakeupItemType.Cream)
-            {
-                _makeupIcon.sprite = _makeupSprites[0];
-                _text.gameObject.SetActive(true);
-            }
-            else if (_currentItem.Type == MakeupItemType.Blush)
-            {
-                _makeupIcon.sprite = _makeupSprites[1];
-                _text.gameObject.SetActive(false);
-            }
-            else if (_currentItem.Type == MakeupItemType.Eyeshadow)
-            {
-                _makeupIcon.sprite = _makeupSprites[2];
-                _text.gameObject.SetActive(false);
-            }
-            else if (_currentItem.Type == MakeupItemType.Lipstick)
-            {
-                _makeupIcon.sprite = _makeupSprites[3];
-                _text.gameObject.SetActive(false);
-            }
-
-            // Перемещаем руку в позицию ожидания
-            StartCoroutine(MoveTo(_waitAnchoredPos, () =>
-            {
-                _canDrag = true;
-            }));
-        }
-
-        private IEnumerator ApplyMakeup()
+        private async UniTask ApplyMakeupAsync()
         {
             _canDrag = false;
             _isApplying = true;
             _handAnimator.SetTrigger("Apply");
-            yield return new WaitForSeconds(_handAnimator.GetCurrentAnimatorStateInfo(0).length);
+            await UniTask.Delay(TimeSpan.FromSeconds(_handAnimator.GetCurrentAnimatorStateInfo(0).length), ignoreTimeScale: false);
             _currentItem.ApplyEffect();
-            ReturnItem();
+            await ReturnItemAsync();
         }
 
-        private void ReturnItem()
+        private async UniTask ReturnItemAsync()
         {
             IsBusy = false;
-            StartCoroutine(ReturnCoroutine());
-        }
-
-        private IEnumerator ReturnCoroutine()
-        {
             _canDrag = false;
             _isApplying = false;
             _handAnimator.SetTrigger("Return");
-            yield return new WaitForSeconds(0.3f);
-            StartCoroutine(MoveTo(_defaultAnchoredPos, () =>
+
+            Vector2 targetPos = WorldToAnchored(_currentRectTransformItem.position);
+            await MoveToAsync(targetPos);
+            
+            _makeupIcon.gameObject.SetActive(false);
+            _text.gameObject.SetActive(false);
+            _currentItem.OnReturn();
+            
+            await UniTask.Delay(TimeSpan.FromSeconds(0.3f));
+            await MoveToAsync(_defaultAnchoredPos);
+            _currentItem = null;
+            _canDrag = false;
+        }
+
+        private void SetMakeupItem()
+        {
+            _currentItem.gameObject.SetActive(false);
+            _makeupIcon.gameObject.SetActive(true);
+            
+            switch (_currentItem.Type)
             {
-                _currentItem?.OnReturn(); // предмет снова появляется на месте
-                _currentItem = null;
-                _canDrag = false;
-                _makeupIcon.gameObject.SetActive(false);
-                _text.gameObject.SetActive(false);
-            }));
+                case MakeupItemType.Cream:
+                    _makeupIcon.sprite = _makeupSprites[0];
+                    _text.gameObject.SetActive(true);
+                    break;
+                case MakeupItemType.Blush:
+                    _makeupIcon.sprite = _makeupSprites[1];
+                    _text.gameObject.SetActive(false);
+                    break;
+                case MakeupItemType.Eyeshadow:
+                    _makeupIcon.sprite = _makeupSprites[2];
+                    _text.gameObject.SetActive(false);
+                    break;
+                case MakeupItemType.Lipstick:
+                    _makeupIcon.sprite = _makeupSprites[3];
+                    _text.gameObject.SetActive(false);
+                    break;
+            }
         }
     }
 }

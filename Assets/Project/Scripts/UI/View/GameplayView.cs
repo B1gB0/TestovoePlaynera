@@ -13,25 +13,29 @@ namespace Project.Scripts.UI.View
         [SerializeField] private List<Sprite> _eyeshadowColors;
 
         [SerializeField] private List<Lipstick> _lipsticks;
+        [SerializeField] private List<Sprite> _lipsticksMakeup;
+
+        [SerializeField] private List<Blush> _blushes;
+        [SerializeField] private List<Sprite> _blushesMakeup;
+        [SerializeField] private Image _blush;
+
+        [SerializeField] private List<Eyeshadow> _eyeshadows;
+        [SerializeField] private List<Sprite> _eyeshadowsMakeup;
+        [SerializeField] private Image _eyeshadow;
+
         [SerializeField] private Cream _cream;
         [SerializeField] private Loofah _loofah;
-        [SerializeField] private Blush _blush;
-        [SerializeField] private Eyeshadow _eyeshadow;
-
-        [SerializeField] private List<Image> _items;
+        [SerializeField] private FaceZone _faceZone;
 
         [SerializeField] private Button _blushButton;
         [SerializeField] private Button _lipstickButton;
         [SerializeField] private Button _eyeshadowButton;
-        
+
         [SerializeField] private Button _blushButtonActive;
         [SerializeField] private Button _lipstickButtonActive;
         [SerializeField] private Button _eyeshadowButtonActive;
-        
-        private void Start()
-        {
-            OnSetBlushes();
-        }
+
+        public FaceZone FaceZone => _faceZone;
 
         private void OnEnable()
         {
@@ -50,79 +54,137 @@ namespace Project.Scripts.UI.View
         public void InitMakeupItems(PlayerHand hand, Character character)
         {
             _cream.Construct(hand, character);
-            _blush.Construct(hand, character);
             _loofah.Construct(hand, character);
-            _eyeshadow.Construct(hand, character);
 
             foreach (var lipstick in _lipsticks)
             {
-              lipstick.Construct(hand, character);  
+                lipstick.Construct(hand, character);
             }
+
+            foreach (var blush in _blushes)
+            {
+                blush.Construct(hand, character);
+            }
+
+            foreach (var eyeshadow in _eyeshadows)
+            {
+                eyeshadow.Construct(hand, character);
+            }
+            
+            OnSetBlushes();
         }
-        
+
         private void ResetAllButtons()
         {
             _blushButton.gameObject.SetActive(true);
             _blushButtonActive.gameObject.SetActive(false);
-            
+            _blush.gameObject.SetActive(false);
+
             _lipstickButton.gameObject.SetActive(true);
             _lipstickButtonActive.gameObject.SetActive(false);
-            
+
             _eyeshadowButton.gameObject.SetActive(true);
             _eyeshadowButtonActive.gameObject.SetActive(false);
-            
+            _eyeshadow.gameObject.SetActive(false);
+
             foreach (var lipstick in _lipsticks)
             {
                 lipstick.gameObject.SetActive(false);
+            }
+            
+            foreach (var eyeshadow in _eyeshadows)
+            {
+                eyeshadow.gameObject.SetActive(false);
+            }
+            
+            foreach (var blush in _blushes)
+            {
+                blush.gameObject.SetActive(false);
             }
         }
 
         private void OnSetBlushes()
         {
-            SetItems(_blusheColors);
             ResetAllButtons();
-            
+            SetBlushes();
+
+            _blush.gameObject.SetActive(true);
             _blushButtonActive.gameObject.SetActive(true);
             _blushButton.gameObject.SetActive(false);
         }
 
         private void OnSetLipsticks()
         {
-            SetItems(_lipstickColors);
             ResetAllButtons();
+            SetLipsticks();
 
-            foreach (var lipstick in _lipsticks)
-            {
-                lipstick.gameObject.SetActive(true);
-            }
-            
             _lipstickButtonActive.gameObject.SetActive(true);
             _lipstickButton.gameObject.SetActive(false);
         }
 
         private void OnSetEyeshadows()
         {
-            SetItems(_eyeshadowColors);
             ResetAllButtons();
-            
+            SetEyeshadows();
+
+            _eyeshadow.gameObject.SetActive(true);
             _eyeshadowButtonActive.gameObject.SetActive(true);
             _eyeshadowButton.gameObject.SetActive(false);
         }
 
-        private void SetItems(List<Sprite> sprites)
+        private void SetLipsticks()
         {
-            for (int i = 0; i < _items.Count; i++)
+            for (int i = 0; i < _lipsticks.Count; i++)
             {
-                if (i < sprites.Count)
+                if (i < _lipstickColors.Count)
                 {
-                    _items[i].sprite = sprites[i];
-                    _items[i].gameObject.SetActive(true);
-                    _items[i].preserveAspect = true;
+                    _lipsticks[i].Image.sprite = _lipstickColors[i];
+                    _lipsticks[i].gameObject.SetActive(true);
+                    _lipsticks[i].Image.preserveAspect = true;
+                    _lipsticks[i].GetSprite(_lipsticksMakeup[i]);
                 }
                 else
                 {
-                    _items[i].sprite = null;
-                    _items[i].gameObject.SetActive(false);
+                    _lipsticks[i].Image.sprite = _lipstickColors[i];
+                    _lipsticks[i].gameObject.SetActive(true);
+                }
+            }
+        }
+
+        private void SetBlushes()
+        {
+            for (int i = 0; i < _blushes.Count; i++)
+            {
+                if (i < _blusheColors.Count)
+                {
+                    _blushes[i].Image.sprite = _blusheColors[i];
+                    _blushes[i].gameObject.SetActive(true);
+                    _blushes[i].Image.preserveAspect = true;
+                    _blushes[i].GetSprite(_blushesMakeup[i]);
+                }
+                else
+                {
+                    _blushes[i].Image.sprite = _blusheColors[i];
+                    _blushes[i].gameObject.SetActive(true);
+                }
+            }
+        }
+
+        private void SetEyeshadows()
+        {
+            for (int i = 0; i < _eyeshadows.Count; i++)
+            {
+                if (i < _eyeshadowColors.Count)
+                {
+                    _eyeshadows[i].Image.sprite = _eyeshadowColors[i];
+                    _eyeshadows[i].gameObject.SetActive(true);
+                    _eyeshadows[i].Image.preserveAspect = true;
+                    _eyeshadows[i].GetSprite(_eyeshadowsMakeup[i]);
+                }
+                else
+                {
+                    _eyeshadows[i].Image.sprite = _eyeshadowColors[i];
+                    _eyeshadows[i].gameObject.SetActive(true);
                 }
             }
         }

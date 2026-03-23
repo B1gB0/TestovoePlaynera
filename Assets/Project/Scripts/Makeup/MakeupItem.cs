@@ -1,4 +1,5 @@
-﻿using Project.Scripts.Player;
+﻿using Cysharp.Threading.Tasks;
+using Project.Scripts.Player;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -16,7 +17,7 @@ namespace Project.Scripts.Makeup
         {
             // Если рука уже занята, не реагируем
             if (_hand.IsBusy) return;
-            _hand.StartTakingItem(this);
+            _hand.StartTakingItem(this).Forget();
         }
 
         protected virtual void OnTaken()
