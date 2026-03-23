@@ -32,8 +32,6 @@ namespace Project.Scripts.Game.Gameplay
 
             _uiRoot = uiRoot;
 
-            // await _particleEffectsService.Init();
-
             _uiScene = Instantiate(_sceneUIRootPrefab);
 
             _viewFactory.GetUIRootAndUIScene(uiRoot, _uiScene, _container);
@@ -46,12 +44,6 @@ namespace Project.Scripts.Game.Gameplay
 
             _uiScene.GetUIStateMachine(uiRoot.UIStateMachine);
 
-
-            // uiRoot.ExitPanel.OnExitToMainMenu += GetMainMenuExitParameters;
-            //  uiRoot.ExitPanel.OnExitToMainMenu += _uiScene.HandleGoToNextSceneButtonClick;
-            
-            //Вот здесь можно писать код для механик
-
             GameplayView gameplayView = await _viewFactory.CreateGameplayView();
             
             _hand = await _viewFactory.CreatePlayerHand();
@@ -60,7 +52,9 @@ namespace Project.Scripts.Game.Gameplay
                 _uiScene.DefaultPosition,
                 _uiScene.WaitPosition,
                 gameplayView.FaceZone,
-                _uiScene.AdditionalMakeupPosition);
+                _uiScene.AdditionalMakeupPosition,
+                gameplayView.Blush,
+                gameplayView.Eyeshadow);
             
             gameplayView.InitMakeupItems(_hand, _girl);
 

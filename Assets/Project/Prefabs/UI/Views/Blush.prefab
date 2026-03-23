@@ -89,5 +89,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   <Type>k__BackingField: 1
-  _sprite: {fileID: 0}
   <Image>k__BackingField: {fileID: 9152281327141914430}
+  _itemSprite: {fileID: 21300000, guid: bdc026ee18f5b0b44bcc04ece3ce802b, type: 3}

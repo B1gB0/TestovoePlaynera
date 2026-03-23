@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Makeup;
 using TMPro;
@@ -11,26 +10,31 @@ namespace Project.Scripts.Player
 {
     public class PlayerHand : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
     {
-        [SerializeField] private Image _makeupIcon;
+        private const float _lipstickSize = 115f;
+        private const float _otherSize = 250f;
+        
+        [SerializeField] private Image _makeupItemIcon;
         [SerializeField] private TMP_Text _text;
-        [SerializeField] private List<Sprite> _makeupSprites;
         [SerializeField] private RectTransform _handRect;
         [SerializeField] private Animator _handAnimator;
         [SerializeField] private float _moveSpeed = 800f;
 
         private FaceZone _faceZone;
         private Canvas _canvas;
-        
+
         private Vector2 _defaultAnchoredPos;
         private Vector2 _waitAnchoredPos;
         private Vector2 _additionalMakeupItemPosition;
 
         private bool _canDrag;
         private bool _isApplying;
-        
+
         private MakeupItem _currentItem;
         private RectTransform _currentRectTransformItem;
         private RectTransform _parent;
+
+        private Image _blush;
+        private Image _eyeshadow;
 
         private Vector2 _dragOffset;
 
@@ -41,11 +45,15 @@ namespace Project.Scripts.Player
             Transform defaultPosition,
             Transform waitPosition,
             FaceZone faceZone,
-            Transform makeupItemPosition)
+            Transform makeupItemPosition,
+            Image blush,
+            Image eyeshadow)
         {
             _canvas = canvas;
             _faceZone = faceZone;
-            
+            _eyeshadow = eyeshadow;
+            _blush = blush;
+
             _parent = _handRect.parent as RectTransform;
 
             _defaultAnchoredPos = WorldToAnchored(defaultPosition.position);
@@ -56,13 +64,13 @@ namespace Project.Scripts.Player
         private Vector2 WorldToAnchored(Vector3 worldPos)
         {
             Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
-            
+
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 _parent,
                 screenPoint,
                 _canvas.worldCamera,
                 out Vector2 localPoint);
-            
+
             return localPoint;
         }
 
@@ -83,12 +91,30 @@ namespace Project.Scripts.Player
             _handRect.anchoredPosition = localPoint + _dragOffset;
         }
 
-        public void OnEndDrag(PointerEventData eventData)
+        public async void OnEndDrag(PointerEventData eventData)
         {
             if (!_canDrag || _isApplying) return;
             if (_faceZone.IsPointerOverZone(eventData.position))
             {
-                ApplyMakeupAsync().Forget();
+                await ApplyMakeupAsync();
+
+                if (_currentItem.Type == MakeupItemType.Lipstick || _currentItem.Type == MakeupItemType.Cream)
+                {
+                    Vector2 targetPos = WorldToAnchored(_currentRectTransformItem.position);
+                    await MoveToAsync(targetPos);
+                }
+                else if (_currentItem.Type == MakeupItemType.Blush)
+                {
+                    await MoveToAsync(_additionalMakeupItemPosition);
+                    _blush.gameObject.SetActive(true);
+                }
+                else if (_currentItem.Type == MakeupItemType.Eyeshadow)
+                {
+                    await MoveToAsync(_additionalMakeupItemPosition);
+                    _eyeshadow.gameObject.SetActive(true);
+                }
+
+                await ReturnItemAsync();
             }
         }
 
@@ -112,17 +138,29 @@ namespace Project.Scripts.Player
             if (_currentItem.Type == MakeupItemType.Cream || _currentItem.Type == MakeupItemType.Lipstick)
             {
                 await MoveToAsync(targetPos);
+                _currentItem.OnTakeItem();
                 SetMakeupItem();
                 await MoveToAsync(_waitAnchoredPos);
             }
-            else if(_currentItem.Type != MakeupItemType.Loofah)
+            else if (_currentItem.Type != MakeupItemType.Loofah)
             {
                 await MoveToAsync(_additionalMakeupItemPosition);
                 SetMakeupItem();
+
+                switch (_currentItem.Type)
+                {
+                    case MakeupItemType.Blush:
+                        _blush.gameObject.SetActive(false);
+                        break;
+                    case MakeupItemType.Eyeshadow:
+                        _eyeshadow.gameObject.SetActive(false);
+                        break;
+                }
+
                 await MoveToAsync(targetPos);
                 await MoveToAsync(_waitAnchoredPos);
             }
-            
+
             _canDrag = true;
         }
 
@@ -140,6 +178,7 @@ namespace Project.Scripts.Player
                 _handRect.anchoredPosition = Vector2.Lerp(startPos, targetPos, t);
                 await UniTask.Yield();
             }
+
             _handRect.anchoredPosition = targetPos;
         }
 
@@ -148,9 +187,9 @@ namespace Project.Scripts.Player
             _canDrag = false;
             _isApplying = true;
             _handAnimator.SetTrigger("Apply");
-            await UniTask.Delay(TimeSpan.FromSeconds(_handAnimator.GetCurrentAnimatorStateInfo(0).length), ignoreTimeScale: false);
+            await UniTask.Delay(TimeSpan.FromSeconds(_handAnimator.GetCurrentAnimatorStateInfo(0).length),
+                ignoreTimeScale: false);
             _currentItem.ApplyEffect();
-            await ReturnItemAsync();
         }
 
         private async UniTask ReturnItemAsync()
@@ -160,13 +199,10 @@ namespace Project.Scripts.Player
             _isApplying = false;
             _handAnimator.SetTrigger("Return");
 
-            Vector2 targetPos = WorldToAnchored(_currentRectTransformItem.position);
-            await MoveToAsync(targetPos);
-            
-            _makeupIcon.gameObject.SetActive(false);
+            _makeupItemIcon.gameObject.SetActive(false);
             _text.gameObject.SetActive(false);
             _currentItem.OnReturn();
-            
+
             await UniTask.Delay(TimeSpan.FromSeconds(0.3f));
             await MoveToAsync(_defaultAnchoredPos);
             _currentItem = null;
@@ -175,25 +211,28 @@ namespace Project.Scripts.Player
 
         private void SetMakeupItem()
         {
-            _currentItem.gameObject.SetActive(false);
-            _makeupIcon.gameObject.SetActive(true);
-            
+            _makeupItemIcon.gameObject.SetActive(true);
+
             switch (_currentItem.Type)
             {
                 case MakeupItemType.Cream:
-                    _makeupIcon.sprite = _makeupSprites[0];
+                    _makeupItemIcon.sprite = _currentItem.ItemSprite;
+                    _makeupItemIcon.rectTransform.sizeDelta = new Vector2(_otherSize, _otherSize);
                     _text.gameObject.SetActive(true);
                     break;
                 case MakeupItemType.Blush:
-                    _makeupIcon.sprite = _makeupSprites[1];
+                    _makeupItemIcon.sprite = _currentItem.ItemSprite;
+                    _makeupItemIcon.rectTransform.sizeDelta = new Vector2(_otherSize, _otherSize);
                     _text.gameObject.SetActive(false);
                     break;
                 case MakeupItemType.Eyeshadow:
-                    _makeupIcon.sprite = _makeupSprites[2];
+                    _makeupItemIcon.sprite = _currentItem.ItemSprite;
+                    _makeupItemIcon.rectTransform.sizeDelta = new Vector2(_otherSize, _otherSize);
                     _text.gameObject.SetActive(false);
                     break;
                 case MakeupItemType.Lipstick:
-                    _makeupIcon.sprite = _makeupSprites[3];
+                    _makeupItemIcon.sprite = _currentItem.ItemSprite;
+                    _makeupItemIcon.rectTransform.sizeDelta = new Vector2(_lipstickSize, _lipstickSize);
                     _text.gameObject.SetActive(false);
                     break;
             }

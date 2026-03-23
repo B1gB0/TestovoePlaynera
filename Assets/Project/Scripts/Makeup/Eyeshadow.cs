@@ -5,18 +5,19 @@ namespace Project.Scripts.Makeup
 {
     public class Eyeshadow : MakeupItem
     {
-        [SerializeField] private Sprite _sprite;
-        
         [field: SerializeField] public Image Image { get; private set; }
+
+        [SerializeField] private Sprite _itemSprite;
 
         public override void ApplyEffect()
         {
-            Character.ApplyEyeshadow(_sprite);
+            Character.ApplyEyeshadow(MakeupSprite);
         }
         
-        public void GetSprite(Sprite sprite)
+        public void GetSprites(Sprite makeupSprite)
         {
-            _sprite = sprite;
+            MakeupSprite = makeupSprite;
+            ItemSprite = _itemSprite;
         }
     }
 }

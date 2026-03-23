@@ -7,11 +7,13 @@ namespace Project.Scripts.Makeup
 {
     public abstract class MakeupItem : MonoBehaviour, IPointerClickHandler
     {
-        private PlayerHand _hand;
-        
         protected Character Character;
         
+        private PlayerHand _hand;
+
         [field: SerializeField] public MakeupItemType Type { get; private set; }
+        public Sprite MakeupSprite { get; protected set; }
+        public Sprite ItemSprite { get; protected set; }
 
         public virtual void OnPointerClick(PointerEventData eventData)
         {
@@ -28,6 +30,11 @@ namespace Project.Scripts.Makeup
         public virtual void OnReturn()
         {
             gameObject.SetActive(true);
+        }
+
+        public virtual void OnTakeItem()
+        {
+            gameObject.SetActive(false);
         }
 
         public abstract void ApplyEffect();

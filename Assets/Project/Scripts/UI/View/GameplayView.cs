@@ -36,6 +36,8 @@ namespace Project.Scripts.UI.View
         [SerializeField] private Button _eyeshadowButtonActive;
 
         public FaceZone FaceZone => _faceZone;
+        public Image Blush => _blush;
+        public Image Eyeshadow => _eyeshadow;
 
         private void OnEnable()
         {
@@ -54,6 +56,7 @@ namespace Project.Scripts.UI.View
         public void InitMakeupItems(PlayerHand hand, Character character)
         {
             _cream.Construct(hand, character);
+            _cream.GetSprite();
             _loofah.Construct(hand, character);
 
             foreach (var lipstick in _lipsticks)
@@ -141,7 +144,7 @@ namespace Project.Scripts.UI.View
                     _lipsticks[i].Image.sprite = _lipstickColors[i];
                     _lipsticks[i].gameObject.SetActive(true);
                     _lipsticks[i].Image.preserveAspect = true;
-                    _lipsticks[i].GetSprite(_lipsticksMakeup[i]);
+                    _lipsticks[i].GetSprites(_lipsticksMakeup[i], _lipstickColors[i]);
                 }
                 else
                 {
@@ -160,7 +163,7 @@ namespace Project.Scripts.UI.View
                     _blushes[i].Image.sprite = _blusheColors[i];
                     _blushes[i].gameObject.SetActive(true);
                     _blushes[i].Image.preserveAspect = true;
-                    _blushes[i].GetSprite(_blushesMakeup[i]);
+                    _blushes[i].GetSprites(_blushesMakeup[i]);
                 }
                 else
                 {
@@ -179,7 +182,7 @@ namespace Project.Scripts.UI.View
                     _eyeshadows[i].Image.sprite = _eyeshadowColors[i];
                     _eyeshadows[i].gameObject.SetActive(true);
                     _eyeshadows[i].Image.preserveAspect = true;
-                    _eyeshadows[i].GetSprite(_eyeshadowsMakeup[i]);
+                    _eyeshadows[i].GetSprites(_eyeshadowsMakeup[i]);
                 }
                 else
                 {

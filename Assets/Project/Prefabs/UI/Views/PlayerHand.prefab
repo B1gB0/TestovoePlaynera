@@ -129,13 +129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bad91c0e5ea4433a7396d2a22f48373, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _makeupIcon: {fileID: 9104315812879214983}
+  _makeupItemIcon: {fileID: 9104315812879214983}
   _text: {fileID: 2490269255546519942}
-  _makeupSprites:
-  - {fileID: 21300000, guid: 432b191e55187e7468dd76f7e84d618f, type: 3}
-  - {fileID: 21300000, guid: bdc026ee18f5b0b44bcc04ece3ce802b, type: 3}
-  - {fileID: 21300000, guid: e5316aa3eb22bef46916691e8ac6de1a, type: 3}
-  - {fileID: 21300000, guid: 48bd04135b67ce0488dd42d3c71d07e7, type: 3}
   _handRect: {fileID: 3294095397301239570}
   _handAnimator: {fileID: 8045399811640791411}
   _moveSpeed: 800
