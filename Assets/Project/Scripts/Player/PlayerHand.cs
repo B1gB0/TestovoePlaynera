@@ -30,6 +30,7 @@ namespace Project.Scripts.Player
         
         private MakeupItem _currentItem;
         private RectTransform _currentRectTransformItem;
+        private RectTransform _parent;
 
         private Vector2 _dragOffset;
 
@@ -44,7 +45,8 @@ namespace Project.Scripts.Player
         {
             _canvas = canvas;
             _faceZone = faceZone;
-            RectTransform parent = _handRect.parent as RectTransform;
+            
+            _parent = _handRect.parent as RectTransform;
 
             _defaultAnchoredPos = WorldToAnchored(defaultPosition.position);
             _waitAnchoredPos = WorldToAnchored(waitPosition.position);
@@ -53,9 +55,14 @@ namespace Project.Scripts.Player
 
         private Vector2 WorldToAnchored(Vector3 worldPos)
         {
-            RectTransform parent = _handRect.parent as RectTransform;
             Vector2 screenPoint = Camera.main.WorldToScreenPoint(worldPos);
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(parent, screenPoint, _canvas.worldCamera, out Vector2 localPoint);
+            
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _parent,
+                screenPoint,
+                _canvas.worldCamera,
+                out Vector2 localPoint);
+            
             return localPoint;
         }
 

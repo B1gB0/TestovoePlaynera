@@ -14,8 +14,6 @@ namespace Project.Scripts.Makeup
             ApplyEffect();
         }
 
-        protected override void OnTaken() { }
-
         public override void OnReturn() { }
     }
 }
