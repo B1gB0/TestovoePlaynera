@@ -10,6 +10,8 @@ namespace Project.Scripts.Game.Gameplay.Root.View
         private Subject<Unit> _exitSceneSignalSubject;
         private UIStateMachine _uiStateMachine;
         
+        [field: SerializeField] public Transform DefaultPosition { get; private set; }
+        [field: SerializeField] public Transform WaitPosition { get; private set; }
         [field: SerializeField] public GameplayElements UIScene { get; private set; }
         
         public void GetUIStateMachine(UIStateMachine uiStateMachine)

@@ -54,6 +54,12 @@ namespace Project.Scripts.DI
                 new [] {typeof(IPauseService)},
                 Lifetime.Singleton,
                 Resolution.Lazy);
+            
+            builder.RegisterType(
+                typeof(PlayerService),
+                new [] {typeof(IPlayerService)},
+                Lifetime.Singleton,
+                Resolution.Lazy);
         }
 
         private void CreateMonoServices()

@@ -14,6 +14,7 @@ namespace Project.Scripts.Game.GameRoot
     public class UIRootView : MonoBehaviour
     {
         [SerializeField] private UISceneContainer _uiSceneContainer;
+        [SerializeField] private Canvas _canvas;
 
         [SerializeField] private LoadingPanel _loadingPanel;
         [SerializeField] private SettingsPanel _settingsPanel;
@@ -22,14 +23,15 @@ namespace Project.Scripts.Game.GameRoot
         private AudioSoundsService _audioSoundsService;
         private IPauseService _pauseService;
 
-        public UIStateMachine UIStateMachine { get; private set; }
-
         [Inject]
         private void Construct(AudioSoundsService audioSoundsService, IPauseService pauseService)
         {
             _audioSoundsService = audioSoundsService;
             _pauseService = pauseService;
         }
+        
+        public UIStateMachine UIStateMachine { get; private set; }
+        public Canvas Canvas => _canvas;
 
         private void Awake()
         {

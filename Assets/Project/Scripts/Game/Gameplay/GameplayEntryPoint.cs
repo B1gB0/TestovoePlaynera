@@ -1,6 +1,9 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Game.Gameplay.Root.View;
 using Project.Scripts.Game.GameRoot;
+using Project.Scripts.Makeup;
+using Project.Scripts.Player;
+using Project.Scripts.UI.View;
 using R3;
 using Reflex.Core;
 using Reflex.Extensions;
@@ -12,8 +15,11 @@ namespace Project.Scripts.Game.Gameplay
     public class GameplayEntryPoint : MonoBehaviour
     {
         [SerializeField] private UIGameplayRootBinder _sceneUIRootPrefab;
-        // [SerializeField] private ViewFactory _viewFactory;
+        [SerializeField] private Character _girl;
+        [SerializeField] private FaceZone _faceZone;
+        [SerializeField] private ViewFactory _viewFactory;
 
+        private PlayerHand _hand;
         private UIRootView _uiRoot;
         private UIGameplayRootBinder _uiScene;
         private Container _container;
@@ -31,7 +37,7 @@ namespace Project.Scripts.Game.Gameplay
 
             _uiScene = Instantiate(_sceneUIRootPrefab);
 
-            // _viewFactory.GetUIRootAndUIScene(uiRoot, _uiScene, _container);
+            _viewFactory.GetUIRootAndUIScene(uiRoot, _uiScene, _container);
 
 
             uiRoot.AttachSceneUI(_uiScene.gameObject);
@@ -46,9 +52,13 @@ namespace Project.Scripts.Game.Gameplay
             //  uiRoot.ExitPanel.OnExitToMainMenu += _uiScene.HandleGoToNextSceneButtonClick;
             
             //Вот здесь можно писать код для механик
+
+            GameplayView gameplayView = await _viewFactory.CreateGameplayView();
             
+            _hand = await _viewFactory.CreatePlayerHand();
+            _hand.Construct(_uiRoot.Canvas, _uiScene.DefaultPosition, _uiScene.WaitPosition, _faceZone);
             
-            
+            gameplayView.InitMakeupItems(_hand, _girl);
 
             var exitSceneSignalSubject = new Subject<Unit>();
             _uiScene.Bind(exitSceneSignalSubject);

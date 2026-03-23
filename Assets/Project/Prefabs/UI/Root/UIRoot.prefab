@@ -428,6 +428,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _uiSceneContainer: {fileID: 1118541157044971349}
+  _canvas: {fileID: 580192292545543022}
   _loadingPanel: {fileID: 1046834270944690355}
   _settingsPanel: {fileID: 1768289887452776449, guid: 8a13f39a91d36c74a8fd302838dd39fc, type: 3}
   _settingsButton: {fileID: 7885974418671738658}
