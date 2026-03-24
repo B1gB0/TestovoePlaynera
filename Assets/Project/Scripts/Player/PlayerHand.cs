@@ -13,6 +13,7 @@ namespace Project.Scripts.Player
     {
         private const float _lipstickSize = 115f;
         private const float _otherSize = 250f;
+        private const float _offsetY = 200f;
 
         [SerializeField] private Image _playerHandParent;
         [SerializeField] private Image _makeupItemIcon;
@@ -120,12 +121,14 @@ namespace Project.Scripts.Player
             {
                 case MakeupItemType.Cream:
                     await ApplyMakeupAsync();
-                    Vector2 targetPos = WorldToAnchored(_currentRectTransformItem.position);
-                    await MoveToAsync(targetPos);
+                    Vector2 targetCreamPos = WorldToAnchored(_currentRectTransformItem.position);
+                    await MoveToAsync(targetCreamPos);
                     break;
                 case MakeupItemType.Lipstick:
                     await MoveToAsync(_lipsAnchoredPos);
                     await ApplyMakeupAsync();
+                    Vector2 targetLipstickPos = WorldToAnchored(_currentRectTransformItem.position);
+                    await MoveToAsync(targetLipstickPos);
                     break;
                 case MakeupItemType.Blush:
                     await MoveToAsync(_blushAnchoredPos);
@@ -177,13 +180,18 @@ namespace Project.Scripts.Player
                 {
                     case MakeupItemType.Blush:
                         _blush.gameObject.SetActive(false);
+                        targetPos.y -= _offsetY;
+                        await MoveToAsync(targetPos);
+                        SetBlushColorItem();
                         break;
                     case MakeupItemType.Eyeshadow:
                         _eyeshadow.gameObject.SetActive(false);
+                        targetPos.y -= _offsetY;
+                        await MoveToAsync(targetPos);
+                        SetEyeshadowColorItem();
                         break;
                 }
-
-                await MoveToAsync(targetPos);
+                
                 await MoveToAsync(_waitAnchoredPos);
             }
 
@@ -235,6 +243,7 @@ namespace Project.Scripts.Player
             await MoveToAsync(_defaultAnchoredPos);
             _currentItem = null;
             _canDrag = false;
+            _colorImage.gameObject.SetActive(false);
         }
 
         private void SetMakeupItem()
@@ -264,6 +273,20 @@ namespace Project.Scripts.Player
                     _text.gameObject.SetActive(false);
                     break;
             }
+        }
+
+        private void SetEyeshadowColorItem()
+        {
+            Eyeshadow eyeshadow = _currentItem.GetComponent<Eyeshadow>();
+            _colorImage.gameObject.SetActive(true);
+            _colorImage.color = _eyeshadowColors[eyeshadow.NumberColor];
+        }
+
+        private void SetBlushColorItem()
+        {
+            Blush blush = _currentItem.GetComponent<Blush>();
+            _colorImage.gameObject.SetActive(true);
+            _colorImage.color = _blushColors[blush.NumberColor];
         }
     }
 }

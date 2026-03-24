@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Project.Scripts.Makeup;
 using Project.Scripts.Player;
 using UnityEngine;
@@ -34,6 +35,8 @@ namespace Project.Scripts.UI.View
         [SerializeField] private Button _blushButtonActive;
         [SerializeField] private Button _lipstickButtonActive;
         [SerializeField] private Button _eyeshadowButtonActive;
+
+        [SerializeField] private GridLayoutGroup _gridLayout;
 
         public FaceZone FaceZone => _faceZone;
         public Image Blush => _blush;
@@ -79,6 +82,8 @@ namespace Project.Scripts.UI.View
 
         private void ResetAllButtons()
         {
+            _gridLayout.enabled = true;
+            
             _blushButton.gameObject.SetActive(true);
             _blushButtonActive.gameObject.SetActive(false);
             _blush.gameObject.SetActive(false);
@@ -152,6 +157,8 @@ namespace Project.Scripts.UI.View
                     _lipsticks[i].gameObject.SetActive(true);
                 }
             }
+
+            _gridLayout.enabled = false;
         }
 
         private void SetBlushes()
@@ -163,7 +170,7 @@ namespace Project.Scripts.UI.View
                     _blushes[i].Image.sprite = _blusheColors[i];
                     _blushes[i].gameObject.SetActive(true);
                     _blushes[i].Image.preserveAspect = true;
-                    _blushes[i].GetSprites(_blushesMakeup[i]);
+                    _blushes[i].GetSprites(_blushesMakeup[i], i);
                 }
                 else
                 {
@@ -182,7 +189,7 @@ namespace Project.Scripts.UI.View
                     _eyeshadows[i].Image.sprite = _eyeshadowColors[i];
                     _eyeshadows[i].gameObject.SetActive(true);
                     _eyeshadows[i].Image.preserveAspect = true;
-                    _eyeshadows[i].GetSprites(_eyeshadowsMakeup[i]);
+                    _eyeshadows[i].GetSprites(_eyeshadowsMakeup[i], i);
                 }
                 else
                 {
