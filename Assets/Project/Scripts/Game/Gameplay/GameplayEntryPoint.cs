@@ -1,7 +1,6 @@
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Game.Gameplay.Root.View;
 using Project.Scripts.Game.GameRoot;
-using Project.Scripts.Makeup;
 using Project.Scripts.Player;
 using Project.Scripts.UI.View;
 using R3;
@@ -36,16 +35,15 @@ namespace Project.Scripts.Game.Gameplay
 
             _viewFactory.GetUIRootAndUIScene(uiRoot, _uiScene, _container);
 
-
             uiRoot.AttachSceneUI(_uiScene.gameObject);
-            
+
             var container = gameObject.scene.GetSceneContainer();
             GameObjectInjector.InjectRecursive(uiRoot.gameObject, container);
 
             _uiScene.GetUIStateMachine(uiRoot.UIStateMachine);
 
             GameplayView gameplayView = await _viewFactory.CreateGameplayView();
-            
+
             _hand = await _viewFactory.CreatePlayerHand();
             _hand.Construct(
                 _uiRoot.Canvas,
@@ -54,8 +52,11 @@ namespace Project.Scripts.Game.Gameplay
                 gameplayView.FaceZone,
                 _uiScene.AdditionalMakeupPosition,
                 gameplayView.Blush,
-                gameplayView.Eyeshadow);
-            
+                gameplayView.Eyeshadow,
+                _uiScene.BlushPosition,
+                _uiScene.EyePosition,
+                _uiScene.LipsPosition);
+
             gameplayView.InitMakeupItems(_hand, _girl);
 
             var exitSceneSignalSubject = new Subject<Unit>();

@@ -11,6 +11,9 @@ namespace Project.Scripts.Game.Gameplay.Root.View
         private UIStateMachine _uiStateMachine;
         
         [field: SerializeField] public Transform DefaultPosition { get; private set; }
+        [field: SerializeField] public Transform LipsPosition { get; private set; }
+        [field: SerializeField] public Transform EyePosition { get; private set; }
+        [field: SerializeField] public Transform BlushPosition { get; private set; }
         [field: SerializeField] public Transform WaitPosition { get; private set; }
         [field: SerializeField] public Transform AdditionalMakeupPosition { get; private set; }
         [field: SerializeField] public GameplayElements UIScene { get; private set; }

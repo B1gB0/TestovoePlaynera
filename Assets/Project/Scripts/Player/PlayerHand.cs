@@ -12,7 +12,8 @@ namespace Project.Scripts.Player
     {
         private const float _lipstickSize = 115f;
         private const float _otherSize = 250f;
-        
+
+        [SerializeField] private Image _playerHandParent;
         [SerializeField] private Image _makeupItemIcon;
         [SerializeField] private TMP_Text _text;
         [SerializeField] private RectTransform _handRect;
@@ -23,6 +24,9 @@ namespace Project.Scripts.Player
         private Canvas _canvas;
 
         private Vector2 _defaultAnchoredPos;
+        private Vector2 _lipsAnchoredPos;
+        private Vector2 _eyeAnchoredPos;
+        private Vector2 _blushAnchoredPos;
         private Vector2 _waitAnchoredPos;
         private Vector2 _additionalMakeupItemPosition;
 
@@ -47,7 +51,10 @@ namespace Project.Scripts.Player
             FaceZone faceZone,
             Transform makeupItemPosition,
             Image blush,
-            Image eyeshadow)
+            Image eyeshadow,
+            Transform blushPosition,
+            Transform eyePosition,
+            Transform lipsPosition)
         {
             _canvas = canvas;
             _faceZone = faceZone;
@@ -56,6 +63,9 @@ namespace Project.Scripts.Player
 
             _parent = _handRect.parent as RectTransform;
 
+            _lipsAnchoredPos = WorldToAnchored(lipsPosition.position);
+            _blushAnchoredPos = WorldToAnchored(blushPosition.position);
+            _eyeAnchoredPos = WorldToAnchored(eyePosition.position);
             _defaultAnchoredPos = WorldToAnchored(defaultPosition.position);
             _waitAnchoredPos = WorldToAnchored(waitPosition.position);
             _additionalMakeupItemPosition = WorldToAnchored(makeupItemPosition.position);
@@ -79,7 +89,11 @@ namespace Project.Scripts.Player
             if (!_canDrag || _isApplying) return;
 
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                _handRect.parent as RectTransform, eventData.position, _canvas.worldCamera, out _dragOffset);
+                _handRect.parent as RectTransform,
+                eventData.position,
+                _canvas.worldCamera,
+                out _dragOffset);
+
             _dragOffset = _handRect.anchoredPosition - _dragOffset;
         }
 
@@ -94,28 +108,35 @@ namespace Project.Scripts.Player
         public async void OnEndDrag(PointerEventData eventData)
         {
             if (!_canDrag || _isApplying) return;
-            if (_faceZone.IsPointerOverZone(eventData.position))
-            {
-                await ApplyMakeupAsync();
+            if (!_faceZone.IsPointerOverZone(eventData.position))
+                return;
 
-                if (_currentItem.Type == MakeupItemType.Lipstick || _currentItem.Type == MakeupItemType.Cream)
-                {
+            switch (_currentItem.Type)
+            {
+                case MakeupItemType.Cream:
+                    await ApplyMakeupAsync();
                     Vector2 targetPos = WorldToAnchored(_currentRectTransformItem.position);
                     await MoveToAsync(targetPos);
-                }
-                else if (_currentItem.Type == MakeupItemType.Blush)
-                {
+                    break;
+                case MakeupItemType.Lipstick:
+                    await MoveToAsync(_lipsAnchoredPos);
+                    await ApplyMakeupAsync();
+                    break;
+                case MakeupItemType.Blush:
+                    await MoveToAsync(_blushAnchoredPos);
+                    await ApplyMakeupAsync();
                     await MoveToAsync(_additionalMakeupItemPosition);
                     _blush.gameObject.SetActive(true);
-                }
-                else if (_currentItem.Type == MakeupItemType.Eyeshadow)
-                {
+                    break;
+                case MakeupItemType.Eyeshadow:
+                    await MoveToAsync(_eyeAnchoredPos);
+                    await ApplyMakeupAsync();
                     await MoveToAsync(_additionalMakeupItemPosition);
                     _eyeshadow.gameObject.SetActive(true);
-                }
-
-                await ReturnItemAsync();
+                    break;
             }
+            
+            await ReturnItemAsync();
         }
 
         public async UniTask StartTakingItem(MakeupItem item)
@@ -162,6 +183,7 @@ namespace Project.Scripts.Player
             }
 
             _canDrag = true;
+            _playerHandParent.raycastTarget = true;
         }
 
         private async UniTask MoveToAsync(Vector2 targetPos)
@@ -197,6 +219,7 @@ namespace Project.Scripts.Player
             IsBusy = false;
             _canDrag = false;
             _isApplying = false;
+            _playerHandParent.raycastTarget = false;
             _handAnimator.SetTrigger("Return");
 
             _makeupItemIcon.gameObject.SetActive(false);

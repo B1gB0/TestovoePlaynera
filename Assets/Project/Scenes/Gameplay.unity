@@ -711,7 +711,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _sceneUIRootPrefab: {fileID: 4392302739474468379, guid: abdaa8a1222e2bb41b19e13af2fdd7bf, type: 3}
   _girl: {fileID: 1696765404}
-  _faceZone: {fileID: 0}
   _viewFactory: {fileID: 1459704151}
 --- !u!4 &1459704150
 Transform:
