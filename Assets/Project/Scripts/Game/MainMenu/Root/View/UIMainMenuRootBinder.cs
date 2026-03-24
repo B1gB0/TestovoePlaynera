@@ -60,7 +60,7 @@ namespace Project.Scripts.Game.MainMenu.Root.View
 
         private void HandleGoToGameplayButtonClick()
         {
-            _audioSoundsService.PlaySound(SoundsType.PaperButton).Forget();
+            _audioSoundsService.PlaySound(SoundsType.ButtonClick).Forget();
             OnGameplayStarted?.Invoke();
             _exitSceneSubjectSignal?.OnNext(Unit.Default);
         }

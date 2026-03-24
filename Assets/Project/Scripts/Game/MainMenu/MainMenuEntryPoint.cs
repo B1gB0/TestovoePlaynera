@@ -19,24 +19,25 @@ namespace Project.Scripts.Game.MainMenu
         private MainMenuExitParameters _exitParameters;
 
         private AudioSoundsService _audioSoundsService;
+        private ITweenAnimationService _tweenAnimationService;
 
         [Inject]
-        private void Construct(AudioSoundsService audioSoundsService)
+        private void Construct(AudioSoundsService audioSoundsService, ITweenAnimationService tweenAnimationService)
         {
             _audioSoundsService = audioSoundsService;
+            _tweenAnimationService = tweenAnimationService;
         }
 
         private async void Start()
         {
             await _audioSoundsService.Init();
+            await _tweenAnimationService.Init();
             
-            _audioSoundsService.PlayMusic(SoundsType.MainMenuMusic);
+            _audioSoundsService.PlayMusic(SoundsType.Music);
         }
 
         public Observable<MainMenuExitParameters> Run(UIRootView uiRoot, MainMenuEnterParameters enterParameters)
         {
-            // uiRoot.ExitButton.gameObject.SetActive(false);
-
             _uiScene = Instantiate(_sceneUIRootPrefab);
             uiRoot.AttachSceneUI(_uiScene.gameObject);
 

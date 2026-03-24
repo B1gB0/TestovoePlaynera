@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40daddb4f80329e45897db242d727fe1, type: 3}
   m_Name: AudioConfig
   m_EditorClassIdentifier: 
-  Sounds: []
+  Sounds:
+  - ClipName: ButtonClick
+    Clip: {fileID: 8300000, guid: 2eda851639c2f564593214f35a652aff, type: 3}
+    IsLoop: 0
+    Volume: 1
+  - ClipName: Music
+    Clip: {fileID: 8300000, guid: dbee3e6207c06e848a367b0b994a3453, type: 3}
+    IsLoop: 1
+    Volume: 0.5
   _soundLabel: Sound
   _musicLabel: Music

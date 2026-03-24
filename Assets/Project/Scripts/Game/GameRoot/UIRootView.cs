@@ -29,7 +29,7 @@ namespace Project.Scripts.Game.GameRoot
             _audioSoundsService = audioSoundsService;
             _pauseService = pauseService;
         }
-        
+
         public UIStateMachine UIStateMachine { get; private set; }
         public Canvas Canvas => _canvas;
 
@@ -67,8 +67,8 @@ namespace Project.Scripts.Game.GameRoot
 
         private void StopGame()
         {
-            _audioSoundsService.PlaySound(SoundsType.UIButtonClick).Forget();
-            
+            _audioSoundsService.PlaySound(SoundsType.ButtonClick).Forget();
+
             if (SceneManager.GetActiveScene().name == Scenes.MainMenu)
                 return;
 
@@ -77,7 +77,7 @@ namespace Project.Scripts.Game.GameRoot
 
         private void ShowUIScene()
         {
-            _audioSoundsService.PlaySound(SoundsType.UIButtonClick).Forget();
+            _audioSoundsService.PlaySound(SoundsType.ButtonClick).Forget();
 
             var sceneName = SceneManager.GetActiveScene().name;
 

@@ -33,7 +33,6 @@ namespace Project.Scripts.Game.Gameplay.Root.View
         
         public void HandleGoToNextSceneButtonClick()
         {
-            // _audioSoundsService.PlaySound(SoundsType.Button).Forget();
             _exitSceneSignalSubject?.OnNext(Unit.Default);
         }
     }

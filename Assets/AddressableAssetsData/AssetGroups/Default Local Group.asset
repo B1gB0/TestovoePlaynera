@@ -22,6 +22,12 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2eda851639c2f564593214f35a652aff
+    m_Address: ButtonClick
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Sound
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 7ac13f986bfd5ec459d0a31329db52b3
     m_Address: MainMenu
     m_ReadOnly: 0
@@ -36,6 +42,12 @@ MonoBehaviour:
     m_Address: AudioConfig
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dbee3e6207c06e848a367b0b994a3453
+    m_Address: Music
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Music
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eb9392e33fb7c8b46bef46f8b42e500f
     m_Address: PlayerHand

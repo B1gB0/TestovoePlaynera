@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
+using Project.Scripts.Audio.Sounds;
 using Project.Scripts.Makeup;
 using Project.Scripts.Player;
+using Project.Scripts.Services;
+using Reflex.Attributes;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -38,9 +42,17 @@ namespace Project.Scripts.UI.View
 
         [SerializeField] private GridLayoutGroup _gridLayout;
 
+        private AudioSoundsService _audioSoundsService;
+
         public FaceZone FaceZone => _faceZone;
         public Image Blush => _blush;
         public Image Eyeshadow => _eyeshadow;
+
+        [Inject]
+        private void Construct(AudioSoundsService audioSoundsService)
+        {
+            _audioSoundsService = audioSoundsService;
+        }
 
         private void OnEnable()
         {
@@ -113,6 +125,8 @@ namespace Project.Scripts.UI.View
 
         private void OnSetBlushes()
         {
+            _audioSoundsService.PlaySound(SoundsType.ButtonClick).Forget();
+            
             ResetAllButtons();
             SetBlushes();
 
@@ -123,6 +137,8 @@ namespace Project.Scripts.UI.View
 
         private void OnSetLipsticks()
         {
+            _audioSoundsService.PlaySound(SoundsType.ButtonClick).Forget();
+            
             ResetAllButtons();
             SetLipsticks();
 
@@ -132,6 +148,8 @@ namespace Project.Scripts.UI.View
 
         private void OnSetEyeshadows()
         {
+            _audioSoundsService.PlaySound(SoundsType.ButtonClick).Forget();
+            
             ResetAllButtons();
             SetEyeshadows();
 
