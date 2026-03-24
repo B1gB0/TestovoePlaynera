@@ -1,0 +1,3 @@
+﻿Build path: D:/Repositoris/TestovoePlaynera/Build/FirstBuild.apk
+Build number: 0
+PluginYG version: 0
