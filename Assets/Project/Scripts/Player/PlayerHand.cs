@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Project.Scripts.Makeup;
 using TMPro;
@@ -19,6 +20,10 @@ namespace Project.Scripts.Player
         [SerializeField] private RectTransform _handRect;
         [SerializeField] private Animator _handAnimator;
         [SerializeField] private float _moveSpeed = 800f;
+
+        [SerializeField] private Image _colorImage;
+        [SerializeField] private List<Color> _blushColors;
+        [SerializeField] private List<Color> _eyeshadowColors;
 
         private FaceZone _faceZone;
         private Canvas _canvas;
